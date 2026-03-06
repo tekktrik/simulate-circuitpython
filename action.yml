@@ -103,7 +103,6 @@ runs:
         mformat -i build-native_native_sim/flash.bin ::
     - name: Create CIRCUITPY folder
       shell: bash
-      working-directory: ${{ inputs.circuitpython-folder }}/ports/zephyr-cp
       run: |
         python ${{ github.action_path }}/scripts/prepare.py ${{ inputs.circuitpy }}
     - name: Add files to flash
