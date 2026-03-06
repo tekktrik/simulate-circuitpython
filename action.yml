@@ -36,11 +36,10 @@ runs:
     #     path: ${{ inputs.circuitpython-folder }}/ports/zephyr-cp/build-native_native_sim/firmware.exe
     #     # TODO: Change key later, especially if selecting CircuitPython version
     #     key: zephyr-cache
-    - name: Fetch Zephyr port submodules
+    - name: Fetch submodules
       shell: bash
-      working-directory: ${{ inputs.circuitpython-folder }}/ports/zephyr-cp
-      if: steps.cache-firmware.outputs.cache-hit != 'true'
-      run: make fetch-port-submodules
+      working-directory: ${{ inputs.circuitpython-folder }}
+      run: make fetch-all-submodules
     - name: Install CircuitPython dev dependencies
       shell: bash
       working-directory: ${{ inputs.circuitpython-folder }}
