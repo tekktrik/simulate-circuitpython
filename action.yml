@@ -74,7 +74,9 @@ runs:
     - name: Install Zephyr script dependencies
       shell: bash
       working-directory: ${{ inputs.circuitpython-folder }}/ports/zephyr-cp
-      run: pip install -r zephyr/scripts/requirements.txt
+      run: | 
+        pip install -r zephyr/scripts/requirements.txt
+        pip install protobuf grpcio-tools
     - name: Install Zephyr SDK
       shell: bash
       working-directory: ${{ inputs.circuitpython-folder }}/ports/zephyr-cp
