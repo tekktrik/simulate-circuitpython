@@ -51,9 +51,9 @@ runs:
           g++-multilib
     - name: Fetch submodules
       shell: bash
-      working-directory: ${{ inputs.circuitpython-folder }}
+      working-directory: ${{ inputs.circuitpython-folder }}/ports/zephyr-cp
       #if: steps.cache-firmware.outputs.cache-hit != 'true'
-      run: make fetch-all-submodules
+      run: make fetch-port-submodules
     - name: Install CircuitPython dev dependencies
       shell: bash
       working-directory: ${{ inputs.circuitpython-folder }}
