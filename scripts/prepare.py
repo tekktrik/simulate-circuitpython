@@ -11,7 +11,7 @@ import os
 
 def prepare():
     src = pathlib.Path(sys.argv[1])
-    dst = pathlib.Path(os.getcwd())
+    dst = pathlib.Path(sys.argv[2])
 
     if not src.exists():
         print(f"Filepath {src.absolute()} does not exist")
