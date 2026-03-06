@@ -33,12 +33,6 @@ runs:
         path: ${{ inputs.circuitpython-folder }}
         ref: ${{ inputs.version }}
         fetch-depth: 0
-    - name: Cache firmware build
-      id: cache-firmware
-      uses: actions/cache@v5
-      with:
-        path: ${{ inputs.circuitpython-folder }}/ports/zephyr-cp/build-native_native_sim/firmware.exe
-        key: ${{ inputs.version }}-zephyr-cache
     - name: Install system dependencies
       shell: bash
       run: |
@@ -51,6 +45,12 @@ runs:
           dosfstools \
           gcc-multilib \
           g++-multilib
+    - name: Cache firmware build
+      id: cache-firmware
+      uses: actions/cache@v5
+      with:
+        path: ${{ inputs.circuitpython-folder }}/ports/zephyr-cp/build-native_native_sim/firmware.exe
+        key: ${{ inputs.version }}-zephyr-cache
     - name: Fetch submodules
       shell: bash
       working-directory: ${{ inputs.circuitpython-folder }}/ports/zephyr-cp
