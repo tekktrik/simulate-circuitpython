@@ -6,7 +6,6 @@
 import sys
 import pathlib
 import shutil
-import os
 
 
 def prepare():
