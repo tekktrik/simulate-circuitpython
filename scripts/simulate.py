@@ -16,7 +16,6 @@ class Simualtor:
         self.cmd = [
             "build-native_native_sim/firmware.exe",
             "--flash=build-native_native_sim/flash.bin",
-            "--flash_rm",
             "-rt",
             "-uart_stdinout",
             f"-stop_at={timeout}",
