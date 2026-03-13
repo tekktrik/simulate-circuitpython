@@ -1,8 +1,8 @@
 # SPDX-FileCopyrightText: 2026 Alec Delaney
 # SPDX-License-Identifier: MIT
 
-name: 'Simulate CircuitPython'
-description: 'Simulate CircuitPython using Zephyr simulator'
+name: 'Build CircuitPython simulator'
+description: 'Build the Zephyr simulator firmware'
 inputs:
   version:
     description: 'Version of CircuitPython to simulate'
@@ -10,20 +10,32 @@ inputs:
     # TODO: Should default to latest
     default: main
   circuitpython-folder:
-    description: 'Folder name to use for the CircuitPython checkout'
+    description: 'Folder name to use for the CircuitPython checkout, if needed'
     required: true
     default: 'cpysim'
+  firmware-filepath:
+    description: 'Filepath for the built firmware'
+    required: true
+    default: './firmware.exe'
 outputs:
-  output-text:
-    description: 'The text output from the simulator'
-    value: ${{ steps.run-sim.outputs.simout }}
+  restored:
+    description: 'Whether the firmware was restored from cache'
+    value: ${{ steps.cache-hit.outputs.cached }}
 runs:
   using: "composite"
   steps:
-    - name: Setup Python 3.12
-      uses: actions/setup-python@v6
-      with:
-        python-version: 3.12
+    - name: Install system dependencies
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          libusb-1.0-0-dev \
+          libudev-dev \
+          mtools \
+          protobuf-compiler \
+          dosfstools \
+          gcc-multilib \
+          g++-multilib
     - name: Checkout CircuitPython repository
       uses: actions/checkout@v6
       with:
@@ -42,25 +54,18 @@ runs:
         else
           CACHE_KEY="${{ inputs.version }}-zephyr-cache"
         fi
-        echo "CACHE_KEY=$CACHE_KEY" >> $GITHUB_OUTPUT
-    - name: Install system dependencies
-      shell: bash
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          libusb-1.0-0-dev \
-          libudev-dev \
-          mtools \
-          protobuf-compiler \
-          dosfstools \
-          gcc-multilib \
-          g++-multilib
+        echo "cache-key=$CACHE_KEY" >> "$GITHUB_OUTPUT"
     - name: Cache firmware build
       id: cache-firmware
       uses: actions/cache@v5
       with:
-        path: ${{ inputs.circuitpython-folder }}/ports/zephyr-cp/build-native_native_sim/firmware.exe
-        key: ${{ steps.cache-key.outputs.CACHE_KEY }}
+        path: ${{ inputs.firmware-filepath }}
+        key: ${{ steps.cache-key.outputs.cache-key }}
+    - name: Setup Python 3.12
+      uses: actions/setup-python@v6
+      if: steps.cache-firmware.outputs.cache-hit != 'true'
+      with:
+        python-version: 3.12
     - name: Fetch submodules
       shell: bash
       working-directory: ${{ inputs.circuitpython-folder }}/ports/zephyr-cp
@@ -108,3 +113,13 @@ runs:
       working-directory: ${{ inputs.circuitpython-folder }}/ports/zephyr-cp
       if: steps.cache-firmware.outputs.cache-hit != 'true'
       run: make BOARD=native_native_sim BUILD=build-native_native_sim build-native_native_sim/firmware.exe
+    - name: Move firmware executable
+      shell: bash
+      if: steps.cache-firmware.outputs.cache-hit != 'true'
+      run: mv ${{ inputs.circuitpython-folder }}/ports/zephyr-cp/build-native_native_sim/firmware.exe ${{ inputs.firmware-filepath }}
+    - name: Mark firmware as restored from cache
+      id: cache-hit
+      shell: bash
+      run: echo "cached=${{ steps.cache-firmware.outputs.cache-hit }}" >> "$GITHUB_OUTPUT"
+
+    # TODO: Upload firmware as an artifact

@@ -4,10 +4,14 @@
 name: 'Simulate CircuitPython'
 description: 'Simulate CircuitPython using Zephyr simulator'
 inputs:
-  circuitpython-folder:
-    description: 'Folder name to use for the CircuitPython checkout'
+  firmware-filepath:
+    description: 'Filepath to firmware executable file'
     required: true
-    default: 'cpysim'
+    default: './firmware.exe'
+  flash-filepath:
+    description: 'Filepath to flash binary file'
+    required: true
+    default: './flash.bin'
 outputs:
   output-text:
     description: 'The text output from the simulator'
@@ -15,6 +19,18 @@ outputs:
 runs:
   using: "composite"
   steps:
+    - name: Install system dependencies
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          libusb-1.0-0-dev \
+          libudev-dev \
+          mtools \
+          protobuf-compiler \
+          dosfstools \
+          gcc-multilib \
+          g++-multilib
     - name: Setup Python 3.12
       uses: actions/setup-python@v6
       with:
@@ -25,9 +41,8 @@ runs:
     - name: Run simulator script
       id: run-sim
       shell: bash
-      working-directory: ${{ inputs.circuitpython-folder }}/ports/zephyr-cp
       run: |
-        SIM_OUTPUT=$(simulate-circuitpython)
+        SIM_OUTPUT=$(simulate-circuitpython ${{ inputs.firmware-filepath }} ${{ inputs.flash-filepath }})
         {
           echo "simout<<EOF"
           echo "$SIM_OUTPUT"

@@ -6,17 +6,18 @@
 """Slim and simple version of the CircuitPython Zephyr test infrastructure."""
 
 import subprocess
+import sys
 
 
 class Simualtor:
     """Zephyr OS native sim wrapper."""
 
-    def __init__(self, timeout: int = 5) -> None:
+    def __init__(self, firmware_filepath: str, flash_filepath: str, timeout: int = 5) -> None:
         """Intialize the simulator."""
         self.simproc: subprocess.Popen | None = None
         self.cmd = [
-            "build-native_native_sim/firmware.exe",
-            "--flash=build-native_native_sim/flash.bin",
+            firmware_filepath,
+            f"--flash={flash_filepath}",
             "-rt",
             "-uart_stdinout",
             f"-stop_at={timeout}",
@@ -61,7 +62,7 @@ class Simualtor:
 
 def simulate_circuitpython() -> None:
     """Simulate CircuitPython using a simulator."""
-    simulator = Simualtor()
+    simulator = Simualtor(sys.argv[1], sys.argv[2])
     result = simulator.simulate()
     print(result)
 

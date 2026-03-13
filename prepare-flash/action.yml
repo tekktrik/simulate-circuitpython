@@ -4,31 +4,37 @@
 name: 'Simulate CircuitPython'
 description: 'Simulate CircuitPython using Zephyr simulator'
 inputs:
+  flash-filepath:
+    description: 'Filepath for the desired flash binary file'
+    required: true
+    default: './flash.bin'
   circuitpy:
     description: 'Filepath to file or folder of files to add to the simualted CIRCUITPY'
     required: true
-  circuitpython-folder:
-    description: 'Folder name to use for the CircuitPython checkout'
-    required: true
-    default: 'cpysim'
-outputs:
-  output-text:
-    description: 'The text output from the simulator'
-    value: ${{ steps.run-sim.outputs.simout }}
 runs:
   using: "composite"
   steps:
+    - name: Install system dependencies
+      shell: bash
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y \
+          libusb-1.0-0-dev \
+          libudev-dev \
+          mtools \
+          protobuf-compiler \
+          dosfstools \
+          gcc-multilib \
+          g++-multilib
     - name: Create flash space
       shell: bash
-      working-directory: ${{ inputs.circuitpython-folder }}/ports/zephyr-cp
       run: |
-        truncate -s 2M build-native_native_sim/flash.bin
-        mformat -i build-native_native_sim/flash.bin ::
-    - name: Create CIRCUITPY folder
-      shell: bash
-      run: |
-        python ${{ github.action_path }}/../scripts/prepare.py ${{ inputs.circuitpy }} ${{ inputs.circuitpython-folder }}/ports/zephyr-cp
+        truncate -s 2M ${{ inputs.flash-filepath }}
+        mformat -i ${{ inputs.flash-filepath }} ::
+    # - name: Create CIRCUITPY folder
+    #   shell: bash
+    #   run: |
+    #     python ${{ github.action_path }}/../scripts/prepare.py ${{ inputs.circuitpy }} ${{ inputs.flash-folder }}
     - name: Add files to flash
       shell: bash
-      working-directory: ${{ inputs.circuitpython-folder }}/ports/zephyr-cp
-      run: mcopy -s -i build-native_native_sim/flash.bin CIRCUITPY/* ::;
+      run: mcopy -s -i ${{ inputs.flash-filepath }} ${{ inputs.circuitpy }}/* ::;
