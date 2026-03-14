@@ -42,6 +42,7 @@ dev = [
 
 [project.scripts]
 simulate-circuitpython = "circuitpy_sim:simulate_circuitpython"
+prepare-flash = "circuitpy_sim:prepare_flash"
 
 [tool.setuptools]
 py-modules = ["circuitpy_sim"]

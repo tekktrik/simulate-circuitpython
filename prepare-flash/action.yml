@@ -26,15 +26,9 @@ runs:
           dosfstools \
           gcc-multilib \
           g++-multilib
+    - name: Install flash preparation command
+      shell: bash
+      run: pipx install ${{ github.action_path }}/..
     - name: Create flash space
       shell: bash
-      run: |
-        truncate -s 2M ${{ inputs.flash-filepath }}
-        mformat -i ${{ inputs.flash-filepath }} ::
-    # - name: Create CIRCUITPY folder
-    #   shell: bash
-    #   run: |
-    #     python ${{ github.action_path }}/../scripts/prepare.py ${{ inputs.circuitpy }} ${{ inputs.flash-folder }}
-    - name: Add files to flash
-      shell: bash
-      run: mcopy -s -i ${{ inputs.flash-filepath }} ${{ inputs.circuitpy }}/* ::;
+      run: prepare-flash ${{ inputs.flash-filepath }} ${{ inputs.circuitpy }}

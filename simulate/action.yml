@@ -37,7 +37,7 @@ runs:
         python-version: "3.12"
     - name: Install simulator command
       shell: bash
-      run: pipx install ../${{ github.action_path }}
+      run: pipx install ${{ github.action_path }}/..
     - name: Run simulator script
       id: run-sim
       shell: bash

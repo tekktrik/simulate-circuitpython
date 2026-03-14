@@ -61,6 +61,51 @@ class Simualtor:
                 recorded += line + "\n"
 
         return recorded.strip()
+    
+    @classmethod
+    def prepare_flash(cls, flash_filepath: str, circuitpy_filepath: str) -> None:
+        """Prepare the native sim flash."""
+        flash_path = str(pathlib.Path(flash_filepath).absolute())
+        circuitpy_abspath = pathlib.Path(circuitpy_filepath).absolute()
+
+        subprocess.run(
+            [
+                "truncate",
+                "-s",
+                "2M",
+                f"{ flash_path }",
+            ],
+            timeout=5,
+            check=True,
+        )
+
+        subprocess.run(
+            [
+                "mformat",
+                "-i",
+                f"{ flash_path }",
+                "::",
+            ],
+            timeout=5,
+            check=True,
+        )
+
+        mcopy_cmd = [
+            "mcopy",
+            "-s",
+            "-i",
+            f"{ flash_path }",
+        ]
+
+        files = [str(path) for path in circuitpy_abspath.glob("*")]
+        mcopy_cmd.extend(files)
+        mcopy_cmd.append("::")
+        
+        subprocess.run(
+            mcopy_cmd,
+            timeout=5,
+            check=True,
+        )
 
 
 def simulate_circuitpython() -> None:
@@ -68,6 +113,13 @@ def simulate_circuitpython() -> None:
     simulator = Simualtor(sys.argv[1], sys.argv[2])
     result = simulator.simulate()
     print(result)
+
+
+def prepare_flash() -> None:
+    """PRepare flash for the simulator."""
+    flash_filepath = sys.argv[1]
+    circuitpy_filepath = sys.argv[2]
+    Simualtor.prepare_flash(flash_filepath, circuitpy_filepath)
 
 
 if __name__ == "__main__":
