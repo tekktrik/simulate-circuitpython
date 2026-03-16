@@ -14,7 +14,7 @@ def simulate(firmware_filepath: str, flash_filepath: str, timeout: int = 5) -> s
     """Simulate using the native sim firmware."""
     firmware_path = pathlib.Path(firmware_filepath).absolute()
     flash_path = pathlib.Path(flash_filepath).absolute()
-    
+
     cmd = [
         str(firmware_path),
         f"--flash={str(flash_path)}",
@@ -44,10 +44,7 @@ def simulate(firmware_filepath: str, flash_filepath: str, timeout: int = 5) -> s
         encoded = line.encode()
         if not line:
             continue
-        if (
-            encoded.strip() == b"\x1b[2K\x1b[0Gcode.py output:"
-            and recording is None
-        ):
+        if encoded.strip() == b"\x1b[2K\x1b[0Gcode.py output:" and recording is None:
             recording = True
         elif line.strip() == "Code done running." and recording:
             recording = False
@@ -56,6 +53,7 @@ def simulate(firmware_filepath: str, flash_filepath: str, timeout: int = 5) -> s
             recorded += line + "\n"
 
     return recorded.strip()
+
 
 def prepare_flash(flash_filepath: str, circuitpy_filepath: str) -> None:
     """Prepare the native sim flash."""
@@ -67,7 +65,7 @@ def prepare_flash(flash_filepath: str, circuitpy_filepath: str) -> None:
             "truncate",
             "-s",
             "2M",
-            f"{ flash_path }",
+            f"{flash_path}",
         ],
         timeout=5,
         check=True,
@@ -77,7 +75,7 @@ def prepare_flash(flash_filepath: str, circuitpy_filepath: str) -> None:
         [
             "mformat",
             "-i",
-            f"{ flash_path }",
+            f"{flash_path}",
             "::",
         ],
         timeout=5,
@@ -88,13 +86,13 @@ def prepare_flash(flash_filepath: str, circuitpy_filepath: str) -> None:
         "mcopy",
         "-s",
         "-i",
-        f"{ flash_path }",
+        f"{flash_path}",
     ]
 
     files = [str(path) for path in circuitpy_abspath.glob("*")]
     mcopy_cmd.extend(files)
     mcopy_cmd.append("::")
-    
+
     subprocess.run(
         mcopy_cmd,
         timeout=5,
