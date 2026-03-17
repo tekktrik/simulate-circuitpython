@@ -22,7 +22,7 @@ Build the nativesim firmware (or use a cached version if available)
 
 | Argument Name | Description | Default | Notes |
 | --- | --- | --- | --- |
-| ``version`` | Version of CircuitPython to simulate | ``main`` | Must be a version that supports the Zephyr OS native sim |
+| ``version`` | Version of CircuitPython to simulate | ``latest`` | Must be a version that supports the Zephyr OS native sim |
 | ``circuitpython-folder`` | Folder name to use for the CircuitPython checkout | ``cpysim`` | Change this if it conflicts with another file/folder |
 | ``firmware-filepath`` | Filepath for the built firmware | ``./firmware.exe`` |  |
 

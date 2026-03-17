@@ -7,8 +7,7 @@ inputs:
   version:
     description: 'Version of CircuitPython to simulate'
     required: true
-    # TODO: Should default to latest
-    default: main
+    default: latest
   circuitpython-folder:
     description: 'Folder name to use for the CircuitPython checkout, if needed'
     required: true
@@ -31,6 +30,9 @@ runs:
         path: ${{ inputs.circuitpython-folder }}
         ref: ${{ inputs.version }}
         fetch-depth: 0
+    - name: Get latest CircuitPython version
+      id: latest-cpy-version
+      uses: tekktrik/latest-circuitpython-version@v1
     - name: Determine cache key
       id: cache-key
       shell: bash
@@ -39,6 +41,8 @@ runs:
         if [[ "${{ inputs.version }}" == "main" ]]; then
           GITREV=$(git rev-parse --short HEAD)
           CACHE_KEY="$GITREV-zephyr-cache"
+        elif [[ "${{ inputs.version }}" == "latest" ]]; then
+          CACHE_KEY="${{ steps.latest-cpy-version.outputs.version }}-zephyr-cache"
         else
           CACHE_KEY="${{ inputs.version }}-zephyr-cache"
         fi
