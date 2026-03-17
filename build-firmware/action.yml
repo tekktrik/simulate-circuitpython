@@ -44,9 +44,6 @@ runs:
         path: ${{ inputs.circuitpython-folder }}
         ref: ${{ steps.checkout-ref.outputs.ref }}
         fetch-depth: 0
-    - name: Get latest CircuitPython version
-      id: latest-cpy-version
-      uses: tekktrik/latest-circuitpython-version@v1
     - name: Determine cache key
       id: cache-key
       shell: bash
